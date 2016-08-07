@@ -1,0 +1,4 @@
+api_get_calendar_by_date_range:
+    path: /calendar/from/{from}/to/{to}
+    defaults: { _controller: ApiBundle:Calendar:getByDateRange, _format: json }
+    methods: GET

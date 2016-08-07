@@ -1,0 +1,25 @@
+services:
+    # Repository
+    api.repository.calendar:
+        class: ApiBundle\Repository\CalendarRepository
+        factory: ["@doctrine.orm.default_entity_manager", getRepository]
+        arguments:
+            - ApiBundle\Entity\Calendar
+
+    api.repository.room_type:
+        class: ApiBundle\Repository\RoomTypeRepository
+        factory: ["@doctrine.orm.default_entity_manager", getRepository]
+        arguments:
+            - ApiBundle\Entity\RoomType
+
+    # Services
+    api.service.calendar:
+        class: ApiBundle\Service\CalendarService
+        arguments:
+            - "@api.repository.calendar"
+
+    # Validators
+    api.validator.date_range:
+        class: ApiBundle\Validator\DateRangeValidator
+        arguments:
+            - "@validator"
