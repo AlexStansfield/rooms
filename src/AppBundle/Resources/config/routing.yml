@@ -1,0 +1,4 @@
+app_calendar_index:
+    path: /
+    defaults: { _controller: AppBundle:Calendar:index }
+    methods: GET

@@ -1,0 +1,61 @@
+<div id="bulkUpdateContainer" class="container">
+    <div class="row bg-success bulk-update-row" id="bulkUpdateToggle">
+        <a role="button" data-toggle="collapse" href="#bulkUpdate" aria-expanded="false" aria-controls="bulkUpdate">
+            Bulk Update
+        </a>
+    </div>
+    <div class="collapse form-horizontal" id="bulkUpdate">
+        <div class="row bg-warning bulk-update-row" id="bulkUpdateRoomType">
+            <label class="col-sm-2 control-label" for="formBulkRoomType">Select Room:</label>
+            <div class="col-md-2">
+                <select class="form-control" id="formBulkRoomType" ng-model="bulkUpdateForm.roomType">
+                    <option ng-repeat="roomType in defaultRoomTypes" value="{{ '{{roomType.type}}' }}">{{ '{{roomType.name}}' }}</option>
+                </select>
+            </div>
+        </div>
+        <div class="row bg-success bulk-update-row" id="bulkUpdateDays">
+            <label class="col-sm-2 control-label">Select Days:</label>
+            <div class="col-md-2">
+                <label for="bulk-from" class="control-label">From:</label>
+                <input class="form-control" type="text" name="bulk-from" ng-model="bulkUpdateForm.dateFrom" />
+                <label for="bulk-to" class="control-label">To:</label>
+                <input class="form-control" type="text" name="bulk-to" ng-model="bulkUpdateForm.dateTo" />
+            </div>
+            <div class="col-md-8">
+                <div class="row">
+                    <label class="col-md-2 control-label" class="control-label">Refine Days:</label>
+                    <div class="col-md-3">
+                        <div class="radio"><label><input name="bulkRefineDays" type="radio" value="1" />All Days</label></div>
+                        <div class="radio"><label><input name="bulkRefineDays" type="radio" value="2" />All Weekdays</label></div>
+                        <div class="radio"><label><input name="bulkRefineDays" type="radio" value="4" />All Weekends</label></div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="radio"><label><input name="bulkRefineDays" type="radio" value="8" />Mondays</label></div>
+                        <div class="radio"><label><input name="bulkRefineDays" type="radio" value="16" />Tuesdays</label></div>
+                        <div class="radio"><label><input name="bulkRefineDays" type="radio" value="32" />Wednesdays</label></div>
+                        <div class="radio"><label><input name="bulkRefineDays" type="radio" value="64" />Thursdays</label></div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="radio"><label><input name="bulkRefineDays" type="radio" value="128" />Fridays</label></div>
+                        <div class="radio"><label><input name="bulkRefineDays" type="radio" value="256" />Saturdays</label></div>
+                        <div class="radio"><label><input name="bulkRefineDays" type="radio" value="512" />Sundays</label></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row bg-warning bulk-update-row" id="bulkUpdatePriceAvailability">
+            <label class="col-sm-2 control-label" for="formBulkPrice">Change Price To:</label>
+            <div class="col-md-2">
+                <input class="form-control" type="text" id="formBulkPrice" name="bulk-price" ng-model="bulkUpdateForm.price" />
+            </div>
+            <label class="col-sm-2 control-label" for="formBulkAvailability">Change Availability To:</label>
+            <div class="col-md-2">
+                <input class="form-control" type="text" id="formBulkAvailability" name="bulk-availability" ng-model="bulkUpdateForm.availability" />
+            </div>
+        </div>
+        <div class="row bg-success bulk-update-row" id="bulkUpdateButtons">
+            <a class="btn btn-danger" role="button" ng-click="bulkReset()">Cancel</a>
+            <a class="btn btn-success" role="button" ng-click="bulkSubmit(bulkUpdateForm)">Update</a>
+        </div>
+    </div>
+</div>

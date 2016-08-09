@@ -1,0 +1,54 @@
+div.bulk-update-row {
+    padding: 10px;
+    border: 1px solid black;
+}
+
+div.calendar-date-month {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    text-align: center;
+    border: 1px solid gray;
+    background-color: #98EFFC;
+}
+div.calendar-date-day {
+    text-align: center;
+    border: 1px solid gray;
+    background-color: #AAAAAA;
+}
+
+div.calendar-date-number {
+    text-align: center;
+    border: 1px solid gray;
+    background-color: #98EFFC;
+}
+
+div.calendar-room-availability {
+    /*font-size: 0.8em;*/
+    text-align: center;
+    background-color: lightgoldenrodyellow;
+}
+
+div.calendar-room-price {
+    /*font-size: 0.8em;*/
+    text-align: center;
+    background-color: whitesmoke;
+}
+
+div.calendar-room-type {
+    background-color: lightblue;
+}
+
+div.price-availability-cell, div.room-type-row {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border: 1px solid lightgray;
+}
+
+#calendarContainer {
+    border: 1px solid gray;
+    background-color: lightcyan;
+}
+
+div.weekend-day {
+    background-color: darkred;
+}

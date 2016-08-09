@@ -1,0 +1,24 @@
+{
+  "name": "rooms",
+  "homepage": "https://github.com/AlexStansfield/rooms",
+  "authors": [
+    "Alex Stansfield <alex.stansfield@gmail.com>"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "web/assets/vendor/",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular-xeditable": "^0.2.0",
+    "bootstrap": "^3.3.7",
+    "angular": "1.5.8",
+    "jquery": "^3.1.0"
+  }
+}
