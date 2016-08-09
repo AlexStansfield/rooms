@@ -3,6 +3,21 @@ api_get_calendar_by_date_range:
     defaults: { _controller: ApiBundle:Calendar:getByDateRange, _format: json }
     methods: GET
 
+api_bulk_update_calendar:
+    path: /calendar
+    defaults: { _controller: ApiBundle:Calendar:bulkUpdate, _format: json }
+    methods: POST
+
+api_update_day_room_price:
+    path: /room/price
+    defaults: { _controller: ApiBundle:Calendar:updateDayRoomPrice, _format: json }
+    methods: POST
+
+api_update_day_room_availability:
+    path: /room/availability
+    defaults: { _controller: ApiBundle:Calendar:updateDayRoomAvailability, _format: json }
+    methods: POST
+
 api_get_all_room_types:
     path: /room_type
     defaults: { _controller: ApiBundle:RoomType:getAll, _format: json }

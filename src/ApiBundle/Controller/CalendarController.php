@@ -54,19 +54,97 @@ class CalendarController extends FOSRestController
     /**
      * @Rest\View(statusCode=200)
      * @param Request $request
-     * @return Calendar[]
+     * @return Calendar[]|JsonResponse
      */
-    public function bulkUpdateRoomsAction(Request $request)
+    public function bulkUpdateAction(Request $request)
     {
+        $requestData = $request->request->all();
+
+        // Validate Request
+        if (!$this->get('api.validator.bulk_update')->isValid($requestData)) {
+            $response = [
+                'code' => 400,
+                'message' => 'Invalid values',
+                'errors' => $this->get('api.validator.bulk_update')->getErrors()
+            ];
+            return new JsonResponse($response, 400);
+        }
+
+        // Get the RoomType and Dates
+        $roomType = $this->get('api.repository.room_type')->findOneByType($requestData['room_type']);
+        $dateFrom = $this->get('api.helper.date')->createDate($requestData['date_from']);
+        $dateTo = $this->get('api.helper.date')->createDate($requestData['date_to']);
+
+        // Bulk Update
+        return $this->get('api.service.calendar')->bulkUpdate(
+            $roomType,
+            $dateFrom,
+            $dateTo,
+            isset($requestData['price']) ? $requestData['price'] : null,
+            isset($requestData['availability']) ? $requestData['availability'] : null,
+            isset($requestData['day_refine']) ? $requestData['day_refine'] : null
+        );
     }
 
     /**
      * @Rest\View(statusCode=200)
      * @param Request $request
-     * @return Calendar[]
+     * @return Calendar|JsonResponse
      */
-    public function updateRoom(Request $request)
+    public function updateDayRoomPriceAction(Request $request)
     {
+        $requestData = $request->request->all();
 
+        // Validate Request
+        if (!$this->get('api.validator.update_day_room_price')->isValid($requestData)) {
+            $response = [
+                'code' => 400,
+                'message' => 'Invalid values',
+                'errors' => $this->get('api.validator.update_day_room_price')->getErrors()
+            ];
+            return new JsonResponse($response, 400);
+        }
+
+        // Get the RoomType and Date
+        $roomType = $this->get('api.repository.room_type')->findOneByType($requestData['room_type']);
+        $date = $this->get('api.helper.date')->createDate($requestData['date']);
+
+        // Update the Price
+        $calendar = $this->get('api.service.calendar')
+            ->updatePriceByRoomTypeAndDate($roomType, $date, $requestData['price']);
+
+        // Return Calendar Entry
+        return $calendar;
+    }
+
+    /**
+     * @Rest\View(statusCode=200)
+     * @param Request $request
+     * @return Calendar|JsonResponse
+     */
+    public function updateDayRoomAvailabilityAction(Request $request)
+    {
+        $requestData = $request->request->all();
+
+        // Validate Request
+        if (!$this->get('api.validator.update_day_room_availability')->isValid($requestData)) {
+            $response = [
+                'code' => 400,
+                'message' => 'Invalid values',
+                'errors' => $this->get('api.validator.update_day_room_availability')->getErrors()
+            ];
+            return new JsonResponse($response, 400);
+        }
+
+        // Get the RoomType and Date
+        $roomType = $this->get('api.repository.room_type')->findOneByType($requestData['room_type']);
+        $date = $this->get('api.helper.date')->createDate($requestData['date']);
+
+        // Update the Availability
+        $calendar = $this->get('api.service.calendar')
+            ->updateAvailabilityByRoomTypeAndDate($roomType, $date, $requestData['availability']);
+
+        // Return Calendar Entry
+        return $calendar;
     }
 }

@@ -119,4 +119,117 @@ class CalendarService
 
         return $missingDayRooms;
     }
+
+    /**
+     * Bulk Update Calendar by Room Type and Dates
+     *
+     * @param RoomType $roomType
+     * @param \DateTime $dateFrom
+     * @param \DateTime $dateTo
+     * @param float|null $price
+     * @param int|null $availability
+     * @param int|null $dayRefine
+     * @return array
+     */
+    public function bulkUpdate(
+        RoomType $roomType,
+        \DateTime $dateFrom,
+        \DateTime $dateTo,
+        $price = null,
+        $availability = null,
+        $dayRefine = null
+    ) {
+        $toUpdate = [];
+
+        // Grab the Calendar
+        $calendar = $this->calendarRepo->findByRoomTypeAndDateRange($roomType, $dateFrom, $dateTo);
+
+        // Create date range and refine it
+        $range = $this->dateHelper->createDateRange($dateFrom, $dateTo);
+
+        // Refine the dates if needed
+        if (null !== $dayRefine) {
+            $range = $this->dateHelper->refineDateRange($range, $dayRefine);
+        }
+
+        // Determine which Calendar Entries to update
+        foreach ($calendar as $calendarEntry) {
+            if (in_array($calendarEntry->getDay(), $range)) {
+                $toUpdate[$calendarEntry->getDay()->format('Y-m-d')] = $calendarEntry;
+            }
+        }
+
+        // Create any missing calendar entries
+        foreach ($range as $date) {
+            if (!in_array($date->format('Y-m-d'), array_keys($toUpdate), true)) {
+                $toUpdate[$date->format('Y-m-d')] = $this->calendarManager->createCalendar($roomType, $date);
+            }
+        }
+
+        // Set the Price and Availability
+        foreach ($toUpdate as $calendarEntry) {
+            if (null !== $price) {
+                $calendarEntry->setPrice($price);
+            }
+
+            if (null !== $availability) {
+                $calendarEntry->setAvailability($availability);
+            }
+        }
+
+        // Save them
+        $this->calendarManager->bulkSave($toUpdate);
+
+        return $toUpdate;
+    }
+
+    /**
+     * @param RoomType $roomType
+     * @param \DateTime $date
+     * @param float $price
+     * @return Calendar
+     */
+    public function updatePriceByRoomTypeAndDate(RoomType $roomType, \DateTime $date, $price)
+    {
+        // Find the Calendar Entry
+        $calendar = $this->calendarRepo->findOneByRoomTypeAndDate($roomType, $date);
+
+        // Create Calendar Entry if missing
+        if (null === $calendar) {
+            $calendar = $this->calendarManager->createCalendar($roomType, $date);
+        }
+
+        // Set Price
+        $calendar->setPrice($price);
+
+        // Save the Calendar
+        $this->calendarManager->save($calendar);
+
+        return $calendar;
+    }
+
+    /**
+     * @param RoomType $roomType
+     * @param \DateTime $date
+     * @param integer $availability
+     * @return Calendar
+     */
+    public function updateAvailabilityByRoomTypeAndDate(RoomType $roomType, \DateTime $date, $availability)
+    {
+        // Find the Calendar Entry
+        $calendar = $this->calendarRepo->findOneByRoomTypeAndDate($roomType, $date);
+
+        // Create Calendar Entry if missing
+        if (null === $calendar) {
+            $calendar = $this->calendarManager->createCalendar($roomType, $date);
+        }
+
+        // Set Availability
+        $calendar->setAvailability($availability);
+
+        // Save the Calendar
+        $this->calendarManager->save($calendar);
+
+        return $calendar;
+    }
 }

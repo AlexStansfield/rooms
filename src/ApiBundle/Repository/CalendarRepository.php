@@ -3,6 +3,7 @@
 namespace ApiBundle\Repository;
 
 use ApiBundle\Entity\Calendar;
+use ApiBundle\Entity\RoomType;
 
 /**
  * CalendarRepository
@@ -27,5 +28,43 @@ class CalendarRepository extends \Doctrine\ORM\EntityRepository
             ->setParameter('to', $to);
 
         return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * Get the Calendar by RoomType and Date Range
+     *
+     * @param RoomType $roomType
+     * @param \DateTime $from
+     * @param \DateTime $to
+     * @return Calendar[]
+     */
+    public function findByRoomTypeAndDateRange(RoomType $roomType, \DateTime $from, \DateTime $to)
+    {
+        $qb = $this->createQueryBuilder('c')
+            ->where('c.roomType = :roomType')
+            ->andWhere('c.day BETWEEN :from AND :to')
+            ->setParameter('roomType', $roomType)
+            ->setParameter('from', $from)
+            ->setParameter('to', $to);
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * Find a single calendar entity based on Room Type and Date
+     *
+     * @param RoomType $roomType
+     * @param \DateTime $date
+     * @return Calendar|null
+     */
+    public function findOneByRoomTypeAndDate(RoomType $roomType, \DateTime $date)
+    {
+        $qb = $this->createQueryBuilder('c')
+            ->where('c.roomType = :roomType')
+            ->andWhere('c.day = :date')
+            ->setParameter('roomType', $roomType)
+            ->setParameter('date', $date);
+
+        return $qb->getQuery()->getOneOrNullResult();
     }
 }

@@ -35,3 +35,19 @@ services:
         class: ApiBundle\Validator\DateRangeValidator
         arguments:
             - "@validator"
+
+    api.validator.bulk_update:
+        class: ApiBundle\Validator\BulkUpdateRoomsValidator
+        arguments:
+            - "@validator"
+
+    api.validator.update_day_room_price:
+        class: ApiBundle\Validator\UpdateRoomPriceValidator
+        arguments:
+            - "@validator"
+
+    api.validator.update_day_room_availability:
+        class: ApiBundle\Validator\UpdateRoomAvailabilityValidator
+        arguments:
+            - "@validator"
+
