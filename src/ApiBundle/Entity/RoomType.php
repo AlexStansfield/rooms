@@ -3,12 +3,14 @@
 namespace ApiBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as JMS;
 
 /**
  * RoomType
  *
  * @ORM\Table(name="room_type")
  * @ORM\Entity(repositoryClass="ApiBundle\Repository\RoomTypeRepository")
+ * @JMS\ExclusionPolicy("all")
  */
 class RoomType
 {
@@ -25,6 +27,7 @@ class RoomType
      * @var string
      *
      * @ORM\Column(name="type", type="string", length=255, unique=true)
+     * @JMS\Expose
      */
     private $type;
 
@@ -32,6 +35,7 @@ class RoomType
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=255)
+     * @JMS\Expose
      */
     private $name;
 

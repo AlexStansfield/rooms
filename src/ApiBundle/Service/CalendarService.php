@@ -4,6 +4,8 @@ namespace ApiBundle\Service;
 
 use ApiBundle\Entity\Calendar;
 use ApiBundle\Entity\RoomType;
+use ApiBundle\Helper\DateHelper;
+use ApiBundle\Manager\CalendarManager;
 use ApiBundle\Repository\CalendarRepository;
 
 /**
@@ -12,17 +14,30 @@ use ApiBundle\Repository\CalendarRepository;
  */
 class CalendarService
 {
+    /** @var CalendarManager */
+    private $calendarManager;
+
     /** @var CalendarRepository */
     private $calendarRepo;
+
+    /** @var DateHelper */
+    private $dateHelper;
 
     /**
      * CalendarService constructor
      *
+     * @param CalendarManager $calendarManager
      * @param CalendarRepository $calendarRepo
+     * @param DateHelper $dateHelper
      */
-    public function __construct(CalendarRepository $calendarRepo)
-    {
+    public function __construct(
+        CalendarManager $calendarManager,
+        CalendarRepository $calendarRepo,
+        DateHelper $dateHelper
+    ) {
+        $this->calendarManager = $calendarManager;
         $this->calendarRepo = $calendarRepo;
+        $this->dateHelper = $dateHelper;
     }
 
     /**
@@ -51,15 +66,12 @@ class CalendarService
             $dayDate = \DateTime::createFromFormat('Y-m-d', $day);
 
             foreach ($dayRoomTypes as $dayRoomType) {
-                $newDayRoom = new Calendar();
-                $newDayRoom->setRoomType($dayRoomType);
-                $newDayRoom->setAvailability($dayRoomType->getDefaultAvailability());
-                $newDayRoom->setPrice($dayRoomType->getDefaultPrice());
-                $newDayRoom->setDay($dayDate);
-
-                $calendar[] = $newDayRoom;
+                $calendar[] = $this->calendarManager->createCalendar($dayRoomType, $dayDate);
             }
         }
+
+        // Save any new entries
+        $this->calendarManager->bulkSave($calendar);
 
         return $calendar;
     }
@@ -75,12 +87,8 @@ class CalendarService
      */
     public function determineMissingDayRooms($calendar, $roomTypes, \DateTime $dateFrom, \DateTime $dateTo)
     {
-        // Create End Range as day after the To date so the To date is included in the Range
-        $endRange = clone $dateTo;
-        $endRange->add(new \DateInterval('P1D'));
-
-        // Create Range of Dates
-        $range = new \DatePeriod($dateFrom, new \DateInterval('P1D'), $endRange);
+        // Create date range
+        $range = $this->dateHelper->createDateRange($dateFrom, $dateTo);
 
         $roomTypesArray = [];
         foreach ($roomTypes as $roomType) {

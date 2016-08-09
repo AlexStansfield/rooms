@@ -2,3 +2,8 @@ api_get_calendar_by_date_range:
     path: /calendar/from/{from}/to/{to}
     defaults: { _controller: ApiBundle:Calendar:getByDateRange, _format: json }
     methods: GET
+
+api_get_all_room_types:
+    path: /room_type
+    defaults: { _controller: ApiBundle:RoomType:getAll, _format: json }
+    methods: GET

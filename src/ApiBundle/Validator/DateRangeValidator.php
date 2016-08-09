@@ -13,8 +13,8 @@ class DateRangeValidator extends AbstractSymfonyValidator
     public function isValid(array $data)
     {
         $validators = [
-            'date_from' => new Assert\Date(),
-            'date_to' => new Assert\Date()
+            'date_from' => [new Assert\Date()],
+            'date_to' => [new Assert\Date()]
         ];
 
         return parent::validate($data, $validators);

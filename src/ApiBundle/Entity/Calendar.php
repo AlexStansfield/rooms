@@ -13,6 +13,7 @@ use JMS\Serializer\Annotation as JMS;
  *     uniqueConstraints={@ORM\UniqueConstraint(name="room_date_unique", columns={"day", "room_type_id"})}
  *     )
  * @ORM\Entity(repositoryClass="ApiBundle\Repository\CalendarRepository")
+ * @ORM\HasLifecycleCallbacks()
  * @JMS\ExclusionPolicy("all")
  */
 class Calendar
@@ -69,6 +70,14 @@ class Calendar
      */
     private $updated;
 
+    /**
+     * @ORM\PreUpdate()
+     * @ORM\PrePersist()
+     */
+    public function addUpdatedDateTime()
+    {
+        $this->updated = new \DateTime();
+    }
 
     /**
      * Get id

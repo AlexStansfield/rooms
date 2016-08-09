@@ -36,18 +36,24 @@ abstract class AbstractSymfonyValidator implements ValidatorInterface
     {
         $this->errors = [];
 
-        foreach ($validators as $field => $constraint) {
-            // use the validator to validate the value
-            $errorList = $this->validator->validate(
-                isset($data[$field]) ? $data[$field] : null,
-                $constraint
-            );
+        foreach ($validators as $field => $constraints) {
+            $errors = [];
 
-            if (0 !== count($errorList)) {
-                $errors = [];
-                foreach ($errorList as $error) {
-                    $errors = $error->getMessage();
+            foreach ($constraints as $constraint) {
+                // use the validator to validate the value
+                $errorList = $this->validator->validate(
+                    isset($data[$field]) ? $data[$field] : null,
+                    $constraint
+                );
+
+                if (0 !== count($errorList)) {
+                    foreach ($errorList as $error) {
+                        $errors = $error->getMessage();
+                    }
                 }
+            }
+
+            if (0 !== count($errors)) {
                 $this->errors[$field] = $errors;
             }
         }

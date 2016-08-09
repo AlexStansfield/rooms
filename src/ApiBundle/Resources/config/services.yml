@@ -12,11 +12,23 @@ services:
         arguments:
             - ApiBundle\Entity\RoomType
 
+    # Helpers
+    api.helper.date:
+        class: ApiBundle\Helper\DateHelper
+
+    # Managers
+    api.manager.calendar:
+        class: ApiBundle\Manager\CalendarManager
+        arguments:
+            - "@doctrine.orm.entity_manager"
+
     # Services
     api.service.calendar:
         class: ApiBundle\Service\CalendarService
         arguments:
+            - "@api.manager.calendar"
             - "@api.repository.calendar"
+            - "@api.helper.date"
 
     # Validators
     api.validator.date_range:

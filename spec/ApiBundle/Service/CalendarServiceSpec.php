@@ -4,9 +4,12 @@ namespace spec\ApiBundle\Service;
 
 use ApiBundle\Entity\Calendar;
 use ApiBundle\Entity\RoomType;
+use ApiBundle\Helper\DateHelper;
+use ApiBundle\Manager\CalendarManager;
 use ApiBundle\Repository\CalendarRepository;
 use ApiBundle\Service\CalendarService;
 use PhpSpec\ObjectBehavior;
+use Prophecy\Argument;
 
 /**
  * Class CalendarServiceSpec
@@ -15,9 +18,9 @@ use PhpSpec\ObjectBehavior;
  */
 class CalendarServiceSpec extends ObjectBehavior
 {
-    function let(CalendarRepository $calendarRepo)
+    function let(CalendarManager $calendarManager, CalendarRepository $calendarRepo, DateHelper $dateHelper)
     {
-        $this->beConstructedWith($calendarRepo);
+        $this->beConstructedWith($calendarManager, $calendarRepo, $dateHelper);
     }
 
     function it_is_initializable()
@@ -38,6 +41,7 @@ class CalendarServiceSpec extends ObjectBehavior
     }
 
     function it_can_determine_missing_day_rooms(
+        DateHelper $dateHelper,
         RoomType $typeOne,
         RoomType $typeTwo,
         Calendar $dayOneTypeOne,
@@ -69,10 +73,14 @@ class CalendarServiceSpec extends ObjectBehavior
         $dayTwoTypeTwo->getRoomType()->willReturn($typeTwo);
         $dayTwoTypeTwo->getDay()->willReturn($dayTwo);
 
+        // Mock the Date Helper
+        $dateHelper->createDateRange($dayOne, $dayThree)->willReturn([$dayOne, $dayTwo, $dayThree]);
+
         $this->determineMissingDayRooms($calendar, $roomTypes, $dayOne, $dayThree)->shouldBe($expected);
     }
 
     function it_can_determine_there_are_no_missing_day_rooms_when_calendar_complete(
+        DateHelper $dateHelper,
         RoomType $typeOne,
         RoomType $typeTwo,
         Calendar $dayOneTypeOne,
@@ -105,13 +113,19 @@ class CalendarServiceSpec extends ObjectBehavior
         $dayTwoTypeTwo->getRoomType()->willReturn($typeTwo);
         $dayTwoTypeTwo->getDay()->willReturn($dayTwo);
 
+        // Mock the Date Helper
+        $dateHelper->createDateRange($dayOne, $dayTwo)->willReturn([$dayOne, $dayTwo]);
+
         $this->determineMissingDayRooms($calendar, $roomTypes, $dayOne, $dayTwo)->shouldBe($expected);
     }
 
     function it_can_create_add_calendar_entries_from_missing_day_rooms(
+        CalendarManager $calendarManager,
         RoomType $typeOne,
         RoomType $typeTwo,
         Calendar $dayOneTypeOne,
+        Calendar $dayOneTypeTwo,
+        Calendar $dayTwoTypeOne,
         Calendar $dayTwoTypeTwo
     ) {
         // Dates
@@ -139,20 +153,103 @@ class CalendarServiceSpec extends ObjectBehavior
         ];
 
         // Create expected new Calendar Entities
-        $dayOneTypeTwo = new Calendar();
-        $dayOneTypeTwo->setRoomType($typeTwo);
-        $dayOneTypeTwo->setDay($dayOne);
-        $dayOneTypeTwo->setAvailability(10);
-        $dayOneTypeTwo->setPrice(2222);
-        $dayTwoTypeOne = new Calendar();
-        $dayTwoTypeOne->setRoomType($typeOne);
-        $dayTwoTypeOne->setDay($dayTwo);
-        $dayTwoTypeOne->setAvailability(5);
-        $dayTwoTypeOne->setPrice(1111);
+        $calendarManager->createCalendar($typeTwo, $dayOne)->willReturn($dayOneTypeTwo);
+        $calendarManager->createCalendar($typeOne, $dayTwo)->willReturn($dayTwoTypeOne);
+        $calendarManager->bulkSave([$dayOneTypeOne, $dayTwoTypeTwo, $dayOneTypeTwo, $dayTwoTypeOne])
+            ->shouldBeCalledTimes(1);
+
 
         // Create Expected array
-        $expected = array_merge($calendar, [$dayOneTypeTwo, $dayTwoTypeOne]);
+        $expected = [$dayOneTypeOne, $dayTwoTypeTwo, $dayOneTypeTwo, $dayTwoTypeOne];
 
         $this->addMissingDayRooms($calendar, $missingDayRooms)->shouldBeLike($expected);
+    }
+
+    function it_can_update_price_of_existing_calendar_entry(
+        CalendarManager $calendarManager,
+        CalendarRepository $calendarRepo,
+        Calendar $calendar,
+        RoomType $roomType
+    ) {
+        $price = 12345;
+        $date = new \DateTime();
+
+        // Mock Calendar Entry
+        $calendar->setPrice($price)->shouldBeCalledTimes(1);
+
+        // Mock Calendar Repo
+        $calendarRepo->findOneByRoomTypeAndDate($roomType, $date)->willReturn($calendar);
+
+        // Mock Calendar Manager
+        $calendarManager->createCalendar($roomType, $date)->shouldNotBeCalled();
+        $calendarManager->save($calendar)->shouldBeCalledTimes(1);
+
+        $this->updatePriceByRoomTypeAndDate($roomType, $date, $price);
+    }
+
+    function it_can_update_price_of_missing_calendar_entry(
+        CalendarManager $calendarManager,
+        CalendarRepository $calendarRepo,
+        Calendar $calendar,
+        RoomType $roomType
+    ) {
+        $price = 12345;
+        $date = new \DateTime();
+
+        // Mock Calendar Entry
+        $calendar->setPrice($price)->shouldBeCalledTimes(1);
+
+        // Mock Calendar Repo
+        $calendarRepo->findOneByRoomTypeAndDate($roomType, $date)->willReturn(null);
+
+        // Mock Calendar Manager
+        $calendarManager->createCalendar($roomType, $date)->willReturn($calendar);
+        $calendarManager->save($calendar)->shouldBeCalledTimes(1);
+
+        $this->updatePriceByRoomTypeAndDate($roomType, $date, $price);
+    }
+
+    function it_can_update_availability_of_existing_calendar_entry(
+        CalendarManager $calendarManager,
+        CalendarRepository $calendarRepo,
+        Calendar $calendar,
+        RoomType $roomType
+    ) {
+        $availability = 54321;
+        $date = new \DateTime();
+
+        // Mock Calendar Entry
+        $calendar->setAvailability($availability)->shouldBeCalledTimes(1);
+
+        // Mock Calendar Repo
+        $calendarRepo->findOneByRoomTypeAndDate($roomType, $date)->willReturn($calendar);
+
+        // Mock Calendar Manager
+        $calendarManager->createCalendar($roomType, $date)->shouldNotBeCalled();
+        $calendarManager->save($calendar)->shouldBeCalledTimes(1);
+
+        $this->updateAvailabilityByRoomTypeAndDate($roomType, $date, $availability);
+    }
+
+    function it_can_update_availability_of_missing_calendar_entry(
+        CalendarManager $calendarManager,
+        CalendarRepository $calendarRepo,
+        Calendar $calendar,
+        RoomType $roomType
+    ) {
+        $availability = 54321;
+        $date = new \DateTime();
+
+        // Mock Calendar Entry
+        $calendar->setAvailability($availability)->shouldBeCalledTimes(1);
+
+        // Mock Calendar Repo
+        $calendarRepo->findOneByRoomTypeAndDate($roomType, $date)->willReturn(null);
+
+        // Mock Calendar Manager
+        $calendarManager->createCalendar($roomType, $date)->willReturn($calendar);
+        $calendarManager->save($calendar)->shouldBeCalledTimes(1);
+
+        $this->updateAvailabilityByRoomTypeAndDate($roomType, $date, $availability);
     }
 }

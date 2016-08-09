@@ -2,6 +2,8 @@
 
 namespace ApiBundle\Repository;
 
+use ApiBundle\Entity\RoomType;
+
 /**
  * RoomTypeRepository
  *
@@ -10,4 +12,18 @@ namespace ApiBundle\Repository;
  */
 class RoomTypeRepository extends \Doctrine\ORM\EntityRepository
 {
+    /**
+     * Find a Room Type by Type
+     *
+     * @param string $type
+     * @return RoomType|null
+     */
+    public function findOneByType($type)
+    {
+        $qb = $this->createQueryBuilder('r')
+            ->where('r.type = :type')
+            ->setParameter('type', $type);
+
+        return $qb->getQuery()->getOneOrNullResult();
+    }
 }

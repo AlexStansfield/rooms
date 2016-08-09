@@ -3,6 +3,7 @@
 namespace ApiBundle\Controller;
 
 use ApiBundle\Entity\Calendar;
+use ApiBundle\Model\CalendarViewModel;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\FOSRestController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -18,7 +19,7 @@ class CalendarController extends FOSRestController
      * @Rest\View(statusCode=200)
      * @param string $from
      * @param string $to
-     * @return Calendar[]|JsonResponse
+     * @return CalendarViewModel|JsonResponse
      */
     public function getByDateRangeAction($from, $to)
     {
@@ -32,8 +33,9 @@ class CalendarController extends FOSRestController
             return new JsonResponse($response, 400);
         }
 
-        $dateFrom = \DateTime::createFromFormat('Y-m-d', $from);
-        $dateTo = \DateTime::createFromFormat('Y-m-d', $to);
+        // Create Date Objects
+        $dateFrom = $this->get('api.helper.date')->createDate($from);
+        $dateTo = $this->get('api.helper.date')->createDate($to);
 
         // Find Existing Calendar Entries
         $calendar = $this->get('api.service.calendar')->getCalendarByDateRange($dateFrom, $dateTo);
@@ -46,7 +48,7 @@ class CalendarController extends FOSRestController
         // Add missing day rooms to Calendar
         $calendar = $this->get('api.service.calendar')->addMissingDayRooms($calendar, $missingDayRooms);
 
-        return $calendar;
+        return new CalendarViewModel($dateFrom, $dateTo, $calendar);
     }
 
     /**
