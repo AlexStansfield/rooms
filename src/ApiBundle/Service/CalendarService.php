@@ -87,6 +87,8 @@ class CalendarService
      */
     public function determineMissingDayRooms($calendar, $roomTypes, \DateTime $dateFrom, \DateTime $dateTo)
     {
+        $today = $this->dateHelper->createDate((new \DateTime())->format('Y-m-d'));
+
         // Create date range
         $range = $this->dateHelper->createDateRange($dateFrom, $dateTo);
 
@@ -98,7 +100,9 @@ class CalendarService
         // Generate list of all Days and Rooms in the range
         $missingDayRooms = [];
         foreach ($range as $day) {
-            $missingDayRooms[$day->format('Y-m-d')] = $roomTypesArray;
+            if ($day >= $today) {
+                $missingDayRooms[$day->format('Y-m-d')] = $roomTypesArray;
+            }
         }
 
         // Eliminate the Days and Rooms that exist in the calendar

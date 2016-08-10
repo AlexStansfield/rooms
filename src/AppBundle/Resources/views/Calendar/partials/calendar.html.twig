@@ -2,18 +2,18 @@
     <div ng-model="dates">
         <div class="row">
             <div class="col-md-2"></div>
-            <div class="col-md-1 calendar-date-month">
+            <div class="col-md-1 calendar-date-month" ng-click="previousDates()">
                 <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
             </div>
-            <div class="col-md-8 calendar-date-month">
-                <a href="#" editable-select="month" e-ng-options="m.value as m.text for m in months">
+            <div class="col-md-8 calendar-date-month popover-wrapper">
+                <a href="#" editable-select="period.month" buttons="no" e-ng-options="m.value as m.text for m in months">
                     {{ '{{showMonth()}}' }}
                 </a>
-                <a href="#" editable-select="year" e-ng-options="y.value as y.text for y in years">
+                <a href="#" editable-select="period.year" buttons="no" e-ng-options="y.value as y.text for y in years">
                     {{ '{{showYear()}}' }}
                 </a>
             </div>
-            <div class="col-md-1 calendar-date-month">
+            <div class="col-md-1 calendar-date-month" ng-click="nextDates()">
                 <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
             </div>
         </div>
@@ -29,22 +29,32 @@
     <div ng-model="roomTypes">
         <div ng-repeat="roomType in roomTypes">
             <div class="row calendar-room-type room-type-row">
-                <div class="col-md-12">{{ '{{showRoomType(roomType)}}' }}</div>
+                <div class="col-md-12">{{ '{{roomType.name}}' }}</div>
             </div>
             <div ng-model="dates" class="row">
                 <div class="col-md-2 price-availability-cell">Rooms Available</div>
                 <div ng-repeat="date in dates" class="col-md-1 calendar-room-availability price-availability-cell popover-wrapper">
-                    <a href="#" editable-text="calendar.calendar[date][roomType].availability" e-label="Availability: " onbeforesave="updateAvailability(roomType, date, $data)">
-                        {{ "{{calendar.calendar[date][roomType].availability}}" }}
-                    </a>
+                    <div ng-show="calendar.calendar[date][roomType.type].availability">
+                        <a href="#" editable-text="calendar.calendar[date][roomType.type].availability" e-label="Availability: " onbeforesave="updateAvailability(roomType.type, date, $data)">
+                            {{ "{{calendar.calendar[date][roomType.type].availability}}" }}
+                        </a>
+                    </div>
+                    <div ng-hide="calendar.calendar[date][roomType.type].availability">
+                        &nbsp;
+                    </div>
                 </div>
             </div>
             <div ng-model="dates" class="row price-availability-row">
                 <div class="col-md-2 price-availability-cell">Room Price (IDR)</div>
                 <div ng-repeat="date in dates" class="col-md-1 calendar-room-price price-availability-cell popover-wrapper">
-                    <a href="#" editable-text="calendar.calendar[date][roomType].price" e-label="Price: " onbeforesave="updatePrice(roomType, date, $data)">
-                        {{ "{{calendar.calendar[date][roomType].price}}" }}
-                    </a>
+                    <div ng-show="calendar.calendar[date][roomType.type].price">
+                        <a href="#" editable-text="calendar.calendar[date][roomType.type].price" e-label="Price: " onbeforesave="updatePrice(roomType.type, date, $data)">
+                            {{ "{{calendar.calendar[date][roomType.type].price}}" }}
+                        </a>
+                    </div>
+                    <div ng-hide="calendar.calendar[date][roomType.type].price">
+                        &nbsp;
+                    </div>
                 </div>
             </div>
         </div>

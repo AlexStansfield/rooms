@@ -5,7 +5,6 @@ calendarApp.run(function(editableOptions) {
 });
 
 calendarApp.controller('CalendarCtrl', function ($scope, $http, $filter) {
-    $scope.startDate = 1;
     $scope.roomTypes = [];
     $scope.dates = [];
     $scope.calendar = [];
@@ -34,54 +33,26 @@ calendarApp.controller('CalendarCtrl', function ($scope, $http, $filter) {
 
     // Set the Starting View
     var today = new Date();
-    $scope.month = today.getMonth()+1;
-    $scope.year = today.getFullYear();
+    $scope.period = {year: today.getFullYear(), month: today.getMonth()+1}
+    $scope.startDate = today.getDate();
 
     // Get the default room types
     $http.get('/api/room_type').success(function (data) {
-        $scope.defaultRoomTypes = data;
+        $scope.roomTypes = data;
     });
 
-    // Watch if the Month changes in order to Refresh Calendar
-    $scope.$watch('month', function (newValue, oldValue, scope) {
+    // Watch if the Month and Year changes in order to Refresh Calendar
+    $scope.$watchGroup(['period["year"]', 'period["month"]'], function (newValue, oldValue, scope) {
         if (newValue == oldValue) {
             return;
         }
-        scope.startDate = 1;
-        scope.refreshCalendar();
-    });
 
-    // Watch if the Year changes in order to Refresh Calendar
-    $scope.$watch('year', function (newValue, oldValue, scope) {
-        if (newValue == oldValue) {
-            return;
-        }
-        scope.startDate = 1;
-        scope.refreshCalendar();
+        $scope.startDate = 1;
+        scope.setPeriodDates();
+        scope.refreshCalendar().then(function () {
+            $scope.updateDateView();
+        });
     });
-
-    // Watch if the Calendar changes in order to find Dates and RoomTypes
-    $scope.$watch('calendar', function (newCalendar, oldCalendar) {
-        if (newCalendar == oldCalendar) {
-            return;
-        }
-        // Get Dates and RoomTypes from Calendar
-        var calendar = newCalendar.calendar;
-        var dates = [];
-        var roomTypes = [];
-        for (var date in calendar) {
-            if ($filter('date')(date, 'd') && (dates.length < 10)) {
-                dates.push(date);
-                for (var roomType in calendar[date]) {
-                    if (roomTypes.indexOf(roomType) == -1) {
-                        roomTypes.push(roomType);
-                    }
-                }
-            }
-        }
-        $scope.dates = dates;
-        $scope.roomTypes = roomTypes;
-    }, true);
 
     // Method for Submitting Bulk Update
     $scope.bulkSubmit = function(bulkUpdateForm) {
@@ -114,33 +85,85 @@ calendarApp.controller('CalendarCtrl', function ($scope, $http, $filter) {
 
     // Display the chosen month
     $scope.showMonth = function() {
-        var selected = $filter('filter')($scope.months, {value: $scope.month});
-        return ($scope.month && selected.length) ? selected[0].text : 'Not set';
+        var selected = $filter('filter')($scope.months, {value: $scope.period.month});
+        return ($scope.period.month && selected.length) ? selected[0].text : 'Not set';
     };
 
     // Display the chosen year
     $scope.showYear = function() {
-        var selected = $filter('filter')($scope.years, {value: $scope.year});
-        return ($scope.year && selected.length) ? selected[0].text : 'Not set';
-    };
-
-    // Display the Room Type
-    $scope.showRoomType = function(type) {
-        var selected = $filter('filter')($scope.defaultRoomTypes, {type: type});
-        return (selected.length) ? selected[0].name : 'Not set';
+        var selected = $filter('filter')($scope.years, {value: $scope.period.year});
+        return ($scope.period.year && selected.length) ? selected[0].text : 'Not set';
     };
 
     // Refresh the calendar with current Month and Year
     $scope.refreshCalendar = function() {
-        var dateFrom = new Date($scope.year, $scope.month - 1, 1);
-        var dateTo = new Date($scope.year, $scope.month, 0);
+        var url = '/api/calendar/from/' + $scope.formatDate($scope.period.dateFrom) + '/to/' + $scope.formatDate($scope.period.dateTo);
 
-        var url = '/api/calendar/from/' + $filter('date')(dateFrom, 'yyyy-MM-dd') + '/to/' + $filter('date')(dateTo, 'yyyy-MM-dd');
-
-        $http.get(url).success(function (data) {
+        return $http.get(url).success(function (data) {
             $scope.calendar = data;
         });
     };
 
+    // Set the Start, End and Dates array in the period object
+    $scope.setPeriodDates = function() {
+        $scope.period.dateFrom = new Date($scope.period.year, $scope.period.month - 1, 1);
+        $scope.period.dateTo = new Date($scope.period.year, $scope.period.month, 0);
+
+        var dates = [];
+        var currentDate = new Date($scope.period.dateFrom.valueOf());
+        while (currentDate <= $scope.period.dateTo) {
+            dates.push($scope.formatDate(currentDate))
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+
+        $scope.period.dates = dates;
+    }
+
+    // Update the Date View
+    $scope.updateDateView = function () {
+        var dates = [];
+
+        var start = $scope.startDate - 1;
+        var end = start + 10;
+        for (var k in $scope.period.dates) {
+            if ((k >= start) && (k < end)) {
+                dates.push($scope.period.dates[k]);
+            }
+        }
+
+        $scope.dates = dates;
+    }
+
+    // Method to format the date how we need it
+    $scope.formatDate = function(date) {
+        return $filter('date')(date, 'yyyy-MM-dd');
+    }
+
+    // Method to move forward a page of dates in calendar
+    $scope.nextDates = function() {
+        var newStartDate = $scope.startDate + 10;
+
+        if (newStartDate > $scope.period.dates.length) {
+            return;
+        }
+
+        $scope.startDate = newStartDate;
+        $scope.updateDateView();
+    };
+
+    // Method to move back a page of dates in calendar
+    $scope.previousDates = function() {
+        var newStartDate = $scope.startDate - 10;
+
+        if (newStartDate < 1) {
+            newStartDate = 1;
+        }
+
+        $scope.startDate = newStartDate;
+        $scope.updateDateView();
+    };
+
+    $scope.setPeriodDates();
     $scope.refreshCalendar();
+    $scope.updateDateView();
 });

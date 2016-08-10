@@ -4,8 +4,8 @@ div.bulk-update-row {
 }
 
 div.calendar-date-month {
-    padding-top: 5px;
-    padding-bottom: 5px;
+    padding-top: 15px;
+    padding-bottom: 15px;
     text-align: center;
     border: 1px solid gray;
     background-color: #98EFFC;
