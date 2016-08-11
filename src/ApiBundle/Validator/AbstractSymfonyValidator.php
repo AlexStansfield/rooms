@@ -11,12 +11,12 @@ abstract class AbstractSymfonyValidator implements ValidatorInterface
     /**
      * @var SymfonyValidatorInterface
      */
-    private $validator;
+    protected $validator;
 
     /**
      * @var array
      */
-    private $errors = [];
+    protected $errors = [];
 
     /**
      * AbstractSymfonyValidator constructor.

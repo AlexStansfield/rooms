@@ -40,14 +40,18 @@ services:
         class: ApiBundle\Validator\BulkUpdateRoomsValidator
         arguments:
             - "@validator"
+            - "@api.repository.room_type"
+            - "@api.helper.date"
 
     api.validator.update_day_room_price:
         class: ApiBundle\Validator\UpdateRoomPriceValidator
         arguments:
             - "@validator"
+            - "@api.repository.room_type"
 
     api.validator.update_day_room_availability:
         class: ApiBundle\Validator\UpdateRoomAvailabilityValidator
         arguments:
             - "@validator"
+            - "@api.repository.room_type"
 

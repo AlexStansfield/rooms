@@ -104,17 +104,19 @@ calendarApp.controller('CalendarCtrl', function ($scope, $http, $filter) {
             day_refine: $scope.getRefineValue(bulkUpdateForm)
         };
 
-        console.log(data);
         return $http.post('/api/calendar', data)
             .then(function() {
                 $scope.refreshCalendar();
             },
             function(data) {
-                alert('Error');
+                var errorMessage = data.data.message;
+
+                for (field in data.data.errors) {
+                    errorMessage = errorMessage + "\n" + field + ': ' + data.data.errors[field];
+                }
+
+                alert (errorMessage);
             });
-        //     .success(function (data) {
-        //         $scope.refreshCalendar();
-        //    });
     };
 
     // Method for Reseting Bulk Update form
