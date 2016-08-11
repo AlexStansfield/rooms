@@ -19,7 +19,7 @@
         </div>
         <div class="row">
             <div class="col-md-2">Price and Availabilty</div>
-            <div ng-repeat="date in dates" class="col-md-1 calendar-date-day">{{ "{{date | date:'EEE'}}" }}</div>
+            <div ng-repeat="date in dates" class="col-md-1 calendar-date-day" ng-class="{'weekend-day': (-1 != ['Sat','Sun'].indexOf(date | date:'EEE'))}">{{ "{{date | date:'EEE'}}" }}</div>
         </div>
         <div class="row">
             <div class="col-md-2"></div>
