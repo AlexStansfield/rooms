@@ -111,7 +111,7 @@ calendarApp.controller('CalendarCtrl', function ($scope, $http, $filter) {
             function(data) {
                 var errorMessage = data.data.message;
 
-                for (field in data.data.errors) {
+                for (var field in data.data.errors) {
                     errorMessage = errorMessage + "\n" + field + ': ' + data.data.errors[field];
                 }
 

@@ -24,8 +24,8 @@ class CalendarRepository extends \Doctrine\ORM\EntityRepository
     {
         $qb = $this->createQueryBuilder('c')
             ->where('c.day BETWEEN :from AND :to')
-            ->setParameter('from', $from)
-            ->setParameter('to', $to);
+            ->setParameter('from', $from->format('Y-m-d'))
+            ->setParameter('to', $to->format('Y-m-d'));
 
         return $qb->getQuery()->getResult();
     }
@@ -44,8 +44,8 @@ class CalendarRepository extends \Doctrine\ORM\EntityRepository
             ->where('c.roomType = :roomType')
             ->andWhere('c.day BETWEEN :from AND :to')
             ->setParameter('roomType', $roomType)
-            ->setParameter('from', $from)
-            ->setParameter('to', $to);
+            ->setParameter('from', $from->format('Y-m-d'))
+            ->setParameter('to', $to->format('Y-m-d'));
 
         return $qb->getQuery()->getResult();
     }
@@ -63,7 +63,7 @@ class CalendarRepository extends \Doctrine\ORM\EntityRepository
             ->where('c.roomType = :roomType')
             ->andWhere('c.day = :date')
             ->setParameter('roomType', $roomType)
-            ->setParameter('date', $date);
+            ->setParameter('date', $date->format('Y-m-d'));
 
         return $qb->getQuery()->getOneOrNullResult();
     }
