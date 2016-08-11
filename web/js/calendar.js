@@ -105,18 +105,7 @@ calendarApp.controller('CalendarCtrl', function ($scope, $http, $filter) {
         };
 
         return $http.post('/api/calendar', data)
-            .then(function() {
-                $scope.refreshCalendar();
-            },
-            function(data) {
-                var errorMessage = data.data.message;
-
-                for (var field in data.data.errors) {
-                    errorMessage = errorMessage + "\n" + field + ': ' + data.data.errors[field];
-                }
-
-                alert (errorMessage);
-            });
+            .then($scope.refreshCalendar, $scope.errorHandler);
     };
 
     // Method for Reseting Bulk Update form
@@ -127,17 +116,13 @@ calendarApp.controller('CalendarCtrl', function ($scope, $http, $filter) {
     // Method to Update Price for a particular room on a day
     $scope.updatePrice = function(roomType, date, price) {
         return $http.post('/api/room/price', {room_type: roomType, date: date, price: parseFloat(price)})
-            .success(function (data) {
-                $scope.refreshCalendar();
-            });
+            .then($scope.refreshCalendar, $scope.errorHandler);
     };
 
     // Method to Update Availability for a particular room on a day
     $scope.updateAvailability = function(roomType, date, availability) {
         return $http.post('/api/room/availability', {room_type: roomType, date: date, availability: parseInt(availability)})
-            .success(function (data) {
-                $scope.refreshCalendar();
-            });
+            .then($scope.refreshCalendar, $scope.errorHandler);
     };
 
     // Display the chosen month
@@ -236,6 +221,19 @@ calendarApp.controller('CalendarCtrl', function ($scope, $http, $filter) {
         $scope.startDate = newStartDate;
         $scope.updateDateView();
     };
+
+    // Handle errors returned by the api
+    $scope.errorHandler = function(error) {
+        var errorMessage = error.data.message;
+
+        for (var field in error.data.errors) {
+            errorMessage = errorMessage + "\n" + field + ': ' + error.data.errors[field];
+        }
+
+        alert (errorMessage);
+
+        return false;
+    }
 
     $scope.setPeriodDates();
     $scope.refreshCalendar();

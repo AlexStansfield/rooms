@@ -2,6 +2,7 @@
 
 namespace ApiBundle\Validator;
 
+use ApiBundle\Entity\RoomType;
 use ApiBundle\Helper\DateHelper;
 use ApiBundle\Repository\RoomTypeRepository;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -37,13 +38,14 @@ class BulkUpdateRoomsValidator extends AbstractSymfonyValidator
      */
     public function isValid(array $data)
     {
+        /** @var RoomType[] $roomTypes */
         $roomTypes = [];
         foreach ($this->roomTypeRepo->findAll() as $roomType) {
-            $roomTypes[] = $roomType->getType();
+            $roomTypes[$roomType->getType()] = $roomType;
         }
 
         $validators = [
-            'room_type' => [new Assert\NotNull(), new Assert\Choice(['choices' => $roomTypes])],
+            'room_type' => [new Assert\NotNull(), new Assert\Choice(['choices' => array_keys($roomTypes)])],
             'date_from' => [new Assert\NotNull(), new Assert\Date()],
             'date_to' => [new Assert\NotNull(), new Assert\Date()],
             'day_refine' => [new Assert\Type(['type' => 'numeric'])],
@@ -73,6 +75,13 @@ class BulkUpdateRoomsValidator extends AbstractSymfonyValidator
 
         if ($dateTo < $dateFrom) {
             $this->errors['date_to'] = 'Date To cannot be before Date From';
+            $isValid = false;
+        }
+
+        // Check Availability not great than default
+        $defaultAvailability = $roomTypes[$data['room_type']]->getDefaultAvailability();
+        if ((null !== $data['availability']) && ($defaultAvailability < $data['availability'])) {
+            $this->errors['availability'] = 'Availability cannot be greater than ' . $defaultAvailability;
             $isValid = false;
         }
 
