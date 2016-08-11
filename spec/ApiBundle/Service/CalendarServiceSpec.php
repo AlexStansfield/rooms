@@ -48,6 +48,8 @@ class CalendarServiceSpec extends ObjectBehavior
         Calendar $dayTwoTypeTwo
     ) {
         // Create the Date Range
+        $todayDate = (new \DateTime())->format('Y-m-d');
+        $today = \DateTime::createFromFormat('Y-m-d', '2016-08-01');
         $dayOne = \DateTime::createFromFormat('Y-m-d', '2016-08-01');
         $dayTwo = \DateTime::createFromFormat('Y-m-d', '2016-08-02');
         $dayThree = \DateTime::createFromFormat('Y-m-d', '2016-08-03');
@@ -74,6 +76,7 @@ class CalendarServiceSpec extends ObjectBehavior
         $dayTwoTypeTwo->getDay()->willReturn($dayTwo);
 
         // Mock the Date Helper
+        $dateHelper->createDate($todayDate)->willReturn($today);
         $dateHelper->createDateRange($dayOne, $dayThree)->willReturn([$dayOne, $dayTwo, $dayThree]);
 
         $this->determineMissingDayRooms($calendar, $roomTypes, $dayOne, $dayThree)->shouldBe($expected);
@@ -89,6 +92,8 @@ class CalendarServiceSpec extends ObjectBehavior
         Calendar $dayTwoTypeTwo
     ) {
         // Create the Date Range
+        $todayDate = (new \DateTime())->format('Y-m-d');
+        $today = \DateTime::createFromFormat('Y-m-d', '2016-08-01');
         $dayOne = \DateTime::createFromFormat('Y-m-d', '2016-08-01');
         $dayTwo = \DateTime::createFromFormat('Y-m-d', '2016-08-02');
 
@@ -114,6 +119,7 @@ class CalendarServiceSpec extends ObjectBehavior
         $dayTwoTypeTwo->getDay()->willReturn($dayTwo);
 
         // Mock the Date Helper
+        $dateHelper->createDate($todayDate)->willReturn($today);
         $dateHelper->createDateRange($dayOne, $dayTwo)->willReturn([$dayOne, $dayTwo]);
 
         $this->determineMissingDayRooms($calendar, $roomTypes, $dayOne, $dayTwo)->shouldBe($expected);
