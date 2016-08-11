@@ -16,9 +16,9 @@ class BulkUpdateRoomsValidator extends AbstractSymfonyValidator
             'room_type' => [new Assert\NotNull(), new Assert\Choice(['choices' => ['single_room', 'double_room']])],
             'date_from' => [new Assert\NotNull(), new Assert\Date()],
             'date_to' => [new Assert\NotNull(), new Assert\Date()],
-            'day_refine' => [new Assert\Type(['type' => 'integer'])],
+            'day_refine' => [new Assert\Type(['type' => 'numeric'])],
             'price' => [new Assert\Type(['type' => 'numeric'])],
-            'availability' => [new Assert\Type(['type' => 'integer'])]
+            'availability' => [new Assert\Type(['type' => 'numeric'])]
         ];
 
         return parent::validate($data, $validators);

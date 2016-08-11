@@ -9,7 +9,7 @@
             <label class="col-sm-2 control-label" for="formBulkRoomType">Select Room:</label>
             <div class="col-md-2">
                 <select class="form-control" id="formBulkRoomType" ng-model="bulkUpdateForm.roomType">
-                    <option ng-repeat="roomType in defaultRoomTypes" value="{{ '{{roomType.type}}' }}">{{ '{{roomType.name}}' }}</option>
+                    <option ng-repeat="roomType in roomTypes" value="{{ '{{roomType.type}}' }}">{{ '{{roomType.name}}' }}</option>
                 </select>
             </div>
         </div>
@@ -25,20 +25,20 @@
                 <div class="row">
                     <label class="col-md-2 control-label" class="control-label">Refine Days:</label>
                     <div class="col-md-3">
-                        <div class="radio"><label><input name="bulkRefineDays" type="radio" value="1" />All Days</label></div>
-                        <div class="radio"><label><input name="bulkRefineDays" type="radio" value="2" />All Weekdays</label></div>
-                        <div class="radio"><label><input name="bulkRefineDays" type="radio" value="4" />All Weekends</label></div>
+                        <div class="radio"><label><input ng-model="bulkUpdateForm.refineGroup" name="bulkRefineGroup" type="radio" value="127" />All Days</label></div>
+                        <div class="radio"><label><input ng-model="bulkUpdateForm.refineGroup" name="bulkRefineGroup" type="radio" value="31" />All Weekdays</label></div>
+                        <div class="radio"><label><input ng-model="bulkUpdateForm.refineGroup" name="bulkRefineGroup" type="radio" value="96" />All Weekends</label></div>
                     </div>
                     <div class="col-md-3">
-                        <div class="radio"><label><input name="bulkRefineDays" type="radio" value="8" />Mondays</label></div>
-                        <div class="radio"><label><input name="bulkRefineDays" type="radio" value="16" />Tuesdays</label></div>
-                        <div class="radio"><label><input name="bulkRefineDays" type="radio" value="32" />Wednesdays</label></div>
-                        <div class="radio"><label><input name="bulkRefineDays" type="radio" value="64" />Thursdays</label></div>
+                        <div class="checkbox"><label><input ng-model="bulkUpdateForm.refineDays.monday" name="bulkRefineDays" type="checkbox" />Mondays</label></div>
+                        <div class="checkbox"><label><input ng-model="bulkUpdateForm.refineDays.tuesday" name="bulkRefineDays" type="checkbox" />Tuesdays</label></div>
+                        <div class="checkbox"><label><input ng-model="bulkUpdateForm.refineDays.wednesday" name="bulkRefineDays" type="checkbox" />Wednesdays</label></div>
+                        <div class="checkbox"><label><input ng-model="bulkUpdateForm.refineDays.thursday" name="bulkRefineDays" type="checkbox" />Thursdays</label></div>
                     </div>
                     <div class="col-md-3">
-                        <div class="radio"><label><input name="bulkRefineDays" type="radio" value="128" />Fridays</label></div>
-                        <div class="radio"><label><input name="bulkRefineDays" type="radio" value="256" />Saturdays</label></div>
-                        <div class="radio"><label><input name="bulkRefineDays" type="radio" value="512" />Sundays</label></div>
+                        <div class="checkbox"><label><input ng-model="bulkUpdateForm.refineDays.friday" name="bulkRefineDays" type="checkbox" />Fridays</label></div>
+                        <div class="checkbox"><label><input ng-model="bulkUpdateForm.refineDays.saturday" name="bulkRefineDays" type="checkbox" />Saturdays</label></div>
+                        <div class="checkbox"><label><input ng-model="bulkUpdateForm.refineDays.sunday" name="bulkRefineDays" type="checkbox" />Sundays</label></div>
                     </div>
                 </div>
             </div>

@@ -30,6 +30,15 @@ calendarApp.controller('CalendarCtrl', function ($scope, $http, $filter) {
         {value: 2017, text: '2017'},
         {value: 2018, text: '2018'}
     ];
+    $scope.refineDays = [
+        {value: 1, day: "monday"},
+        {value: 2, day: "tuesday"},
+        {value: 4, day: "wednesday"},
+        {value: 8, day: "thursday"},
+        {value: 16, day: "friday"},
+        {value: 32, day: "saturday"},
+        {value: 64, day: "sunday"}
+    ];
 
     // Set the Starting View
     var today = new Date();
@@ -39,6 +48,21 @@ calendarApp.controller('CalendarCtrl', function ($scope, $http, $filter) {
     // Get the default room types
     $http.get('/api/room_type').success(function (data) {
         $scope.roomTypes = data;
+    });
+
+    $scope.$watch('bulkUpdateForm["refineDays"]', function (newValue, oldValue, scope) {
+        for (var day in newValue) {
+            if (newValue[day] == true) {
+                scope.bulkUpdateForm.refineGroup = null;
+                return;
+            }
+        }
+    }, true);
+
+    $scope.$watch('bulkUpdateForm["refineGroup"]', function (newValue, oldValue, scope) {
+        if (null != newValue) {
+            scope.bulkUpdateForm.refineDays = {}
+        }
     });
 
     // Watch if the Month and Year changes in order to Refresh Calendar
@@ -56,10 +80,41 @@ calendarApp.controller('CalendarCtrl', function ($scope, $http, $filter) {
 
     // Method for Submitting Bulk Update
     $scope.bulkSubmit = function(bulkUpdateForm) {
-        var data = {
+        var availability;
+        var price;
 
+        if (!bulkUpdateForm.availability) {
+            availability = null;
+        } else {
+            availability = bulkUpdateForm.availability
+        }
+
+        if (!bulkUpdateForm.price) {
+            price = null;
+        } else {
+            price = bulkUpdateForm.price
+        }
+
+        var data = {
+            room_type: bulkUpdateForm.roomType,
+            date_from: bulkUpdateForm.dateFrom,
+            date_to: bulkUpdateForm.dateTo,
+            price: price,
+            availability: availability,
+            day_refine: $scope.getRefineValue(bulkUpdateForm)
         };
-        return $http.post('/api/calendar', data);
+
+        console.log(data);
+        return $http.post('/api/calendar', data)
+            .then(function() {
+                $scope.refreshCalendar();
+            },
+            function(data) {
+                alert('Error');
+            });
+        //     .success(function (data) {
+        //         $scope.refreshCalendar();
+        //    });
     };
 
     // Method for Reseting Bulk Update form
@@ -93,6 +148,23 @@ calendarApp.controller('CalendarCtrl', function ($scope, $http, $filter) {
     $scope.showYear = function() {
         var selected = $filter('filter')($scope.years, {value: $scope.period.year});
         return ($scope.period.year && selected.length) ? selected[0].text : 'Not set';
+    };
+
+    // Work out the refine value
+    $scope.getRefineValue = function(bulkUpdateForm) {
+        if (bulkUpdateForm.refineGroup) {
+            return parseInt(bulkUpdateForm.refineGroup);
+        }
+
+        var refine = 0;
+        for (var day in bulkUpdateForm.refineDays) {
+            if (bulkUpdateForm.refineDays[day]) {
+                var selected = $filter('filter')($scope.refineDays, {day: day});
+                refine = (selected.length) ? refine + parseInt(selected[0].value) : refine;
+            }
+        }
+
+        return (0 != refine) ? refine : null;
     };
 
     // Refresh the calendar with current Month and Year
